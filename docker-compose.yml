@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  quic-server:
+    build: .
+    command: python quic_server.py
+    ports:
+      - "4433:4433/udp"
+    networks:
+      - quic-net
+    container_name: quic-server
+    volumes:
+      - .:/app
+
+  quic-client:
+    build: .
+    command: python quic_client.py
+    depends_on:
+      - quic-server
+    networks:
+      - quic-net
+    container_name: quic-client
+    volumes:
+      - .:/app
+    # Wait for server to start
+    entrypoint: /bin/sh -c "sleep 2 && python quic_client.py"
+
+networks:
+  quic-net:
+    driver: bridge
